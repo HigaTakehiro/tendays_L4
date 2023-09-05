@@ -60,6 +60,29 @@ void Othello::Draw(int offsetX, int offsetY)
 	}
 }
 
+void Othello::Reset()
+{
+	for (size_t i = 0; i < cell.size(); i++)
+	{
+		if (i == 27 || i == 36)
+		{
+			cell[i] = Color::BLACK;
+		}
+		else if (i == 28 || i == 35)
+		{
+			cell[i] = Color::WHITE;
+		}
+		else if (i == 37)
+		{
+			cell[i] = Color::HOLE;
+		}
+		else
+		{
+			cell[i] = Color::EMPTY;
+		}
+	}
+}
+
 int Othello::Put(int x, int y, Color color)
 {
 	int index = y * width + x;

@@ -44,6 +44,10 @@ int WINAPI WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _
 	int y = 0;
 	Color colorFlag = Color::BLACK;
 
+	int bCount = 0; //黒の個数
+	int wCount = 0; //白の個数
+	bool isTie = false;
+
 	KeyInput key;
 	bool isMove = false;
 
@@ -56,58 +60,88 @@ int WINAPI WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _
 		key.Update();
 		isMove = false;
 
-		if (key.IsKeyTrigger(KEY_INPUT_LEFT))
+		if (isTie)
 		{
-			isMove = x - 1 >= 0;
-			isMove &= othello.GetCell(static_cast<size_t>(y * othello.GetWidth() + x - 1)) != Color::HOLE;
-
-			if (isMove)
+			if (key.IsKeyTrigger(KEY_INPUT_RETURN))
 			{
-				x -= 1;
+				// リセット
+				othello.Reset();
+				colorFlag = Color::BLACK;
+				isTie = false;
 			}
 		}
-		if (key.IsKeyTrigger(KEY_INPUT_RIGHT))
+		else
 		{
-			isMove = x + 1 < othello.GetWidth();
-			isMove &= othello.GetCell(static_cast<size_t>(y * othello.GetWidth() + x + 1)) != Color::HOLE;
+			if (key.IsKeyTrigger(KEY_INPUT_LEFT))
+			{
+				isMove = (x - 1) >= 0;
+				isMove &= othello.GetCell(static_cast<size_t>(y * othello.GetWidth() + x - 1)) != Color::HOLE;
 
-			if (isMove)
-			{
-				x += 1;
-			}
-		}
-		if (key.IsKeyTrigger(KEY_INPUT_UP))
-		{
-			isMove = y - 1 >= 0;
-			isMove &= othello.GetCell(static_cast<size_t>((y - 1) * othello.GetWidth() + x)) != Color::HOLE;
-
-			if (isMove)
-			{
-				y -= 1;
-			}
-		}
-		if (key.IsKeyTrigger(KEY_INPUT_DOWN))
-		{
-			isMove = y + 1 < othello.GetHeight();
-			isMove &= othello.GetCell(static_cast<size_t>((y + 1) * othello.GetWidth() + x)) != Color::HOLE;
-
-			if (isMove)
-			{
-				y += 1;
-			}
-		}
-		if (key.IsKeyTrigger(KEY_INPUT_RETURN))
-		{
-			if (othello.Put(x, y, colorFlag) != 0)
-			{
-				if (colorFlag == Color::BLACK)
+				if (isMove)
 				{
-					colorFlag = Color::WHITE;
+					x -= 1;
 				}
-				else if (colorFlag == Color::WHITE)
+			}
+			if (key.IsKeyTrigger(KEY_INPUT_RIGHT))
+			{
+				isMove = (x + 1) < othello.GetWidth();
+				isMove &= othello.GetCell(static_cast<size_t>(y * othello.GetWidth() + x + 1)) != Color::HOLE;
+
+				if (isMove)
 				{
-					colorFlag = Color::BLACK;
+					x += 1;
 				}
+			}
+			if (key.IsKeyTrigger(KEY_INPUT_UP))
+			{
+				isMove = (y - 1) >= 0;
+				isMove &= othello.GetCell(static_cast<size_t>((y - 1) * othello.GetWidth() + x)) != Color::HOLE;
+
+				if (isMove)
+				{
+					y -= 1;
+				}
+			}
+			if (key.IsKeyTrigger(KEY_INPUT_DOWN))
+			{
+				isMove = (y + 1) < othello.GetHeight();
+				isMove &= othello.GetCell(static_cast<size_t>((y + 1) * othello.GetWidth() + x)) != Color::HOLE;
+
+				if (isMove)
+				{
+					y += 1;
+				}
+			}
+			if (key.IsKeyTrigger(KEY_INPUT_RETURN))
+			{
+				if (othello.Put(x, y, colorFlag) != 0)
+				{
+					if (colorFlag == Color::BLACK)
+					{
+						colorFlag = Color::WHITE;
+					}
+					else if (colorFlag == Color::WHITE)
+					{
+						colorFlag = Color::BLACK;
+					}
+				}
+
+				bCount = 0;
+				wCount = 0;
+
+				for (size_t i = 0; i < othello.GetSize(); i++)
+				{
+					if (othello.GetCell(i) == Color::BLACK)
+					{
+						bCount++;
+					}
+					else if (othello.GetCell(i) == Color::WHITE)
+					{
+						wCount++;
+					}
+				}
+
+				isTie = (bCount == wCount);
 			}
 		}
 
@@ -128,7 +162,15 @@ int WINAPI WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _
 		{
 			color = GetColor(0xFF, 0xFF, 0xFF);
 		}
-		DrawCircle(800, Othello::circleSize, Othello::circleSize / 2, color);
+
+		if (isTie)
+		{
+			DrawString(800, Othello::circleSize, "引き分け", GetColor(0xFF, 0xFF, 0xFF));
+		}
+		else
+		{
+			DrawCircle(800, Othello::circleSize, Othello::circleSize / 2, color);
+		}
 
 		// (ダブルバッファ)裏面
 		ScreenFlip();

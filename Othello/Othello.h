@@ -31,11 +31,14 @@ public: //メンバ関数
 	void Init();
 	// 描画
 	void Draw(int offsetX = 0, int offsetY = 0);
+	// リセット
+	void Reset();
 
 	// 石を置く
 	int Put(int x, int y, Color color);
 
 	int GetWidth() { return width; }
 	int GetHeight() { return height; }
+	size_t GetSize() { return cell.size(); }
 	Color GetCell(const size_t& index) { return cell[index]; }
 };
