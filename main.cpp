@@ -45,6 +45,7 @@ int WINAPI WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _
 	Color colorFlag = Color::BLACK;
 
 	KeyInput key;
+	bool isMove = false;
 
 	while (1)
 	{
@@ -53,31 +54,44 @@ int WINAPI WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _
 
 		// 更新処理
 		key.Update();
+		isMove = false;
 
 		if (key.IsKeyTrigger(KEY_INPUT_LEFT))
 		{
-			if (x - 1 >= 0)
+			isMove = x - 1 >= 0;
+			isMove &= othello.GetCell(static_cast<size_t>(y * othello.GetWidth() + x - 1)) != Color::HOLE;
+
+			if (isMove)
 			{
 				x -= 1;
 			}
 		}
 		if (key.IsKeyTrigger(KEY_INPUT_RIGHT))
 		{
-			if (x + 1 < othello.GetWidth())
+			isMove = x + 1 < othello.GetWidth();
+			isMove &= othello.GetCell(static_cast<size_t>(y * othello.GetWidth() + x + 1)) != Color::HOLE;
+
+			if (isMove)
 			{
 				x += 1;
 			}
 		}
 		if (key.IsKeyTrigger(KEY_INPUT_UP))
 		{
-			if (y - 1 >= 0)
+			isMove = y - 1 >= 0;
+			isMove &= othello.GetCell(static_cast<size_t>((y - 1) * othello.GetWidth() + x)) != Color::HOLE;
+
+			if (isMove)
 			{
 				y -= 1;
 			}
 		}
 		if (key.IsKeyTrigger(KEY_INPUT_DOWN))
 		{
-			if (y + 1 < othello.GetHeight())
+			isMove = y + 1 < othello.GetHeight();
+			isMove &= othello.GetCell(static_cast<size_t>((y + 1) * othello.GetWidth() + x)) != Color::HOLE;
+
+			if (isMove)
 			{
 				y += 1;
 			}

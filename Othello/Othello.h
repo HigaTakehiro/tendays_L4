@@ -5,7 +5,8 @@ enum Color
 {
 	EMPTY,
 	BLACK,
-	WHITE
+	WHITE,
+	HOLE
 };
 
 class Othello
@@ -36,4 +37,5 @@ public: //メンバ関数
 
 	int GetWidth() { return width; }
 	int GetHeight() { return height; }
+	Color GetCell(const size_t& index) { return cell[index]; }
 };

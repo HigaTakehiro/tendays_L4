@@ -4,7 +4,7 @@
 Othello::Othello() :
 	cell{},
 	width(8),
-	height(8)
+	height(6)
 {
 	cell.reserve(static_cast<size_t>(width * height));
 }
@@ -15,18 +15,11 @@ void Othello::Init()
 
 	cell[27] = Color::BLACK;
 	cell[36] = Color::BLACK;
-	cell[45] = Color::BLACK;
-	cell[54] = Color::BLACK;
-	cell[63] = Color::BLACK;
 
-	cell[7] = Color::WHITE;
-	cell[14] = Color::WHITE;
-	cell[21] = Color::WHITE;
 	cell[28] = Color::WHITE;
 	cell[35] = Color::WHITE;
-	cell[42] = Color::WHITE;
-	cell[49] = Color::WHITE;
-	cell[56] = Color::WHITE;
+
+	cell[37] = Color::HOLE;
 }
 
 void Othello::Draw(int offsetX, int offsetY)
@@ -36,6 +29,11 @@ void Othello::Draw(int offsetX, int offsetY)
 
 	for (int i = 0; i < width * height; i++)
 	{
+		if (cell[i] == Color::HOLE)
+		{
+			continue;
+		}
+
 		int x = i % width;
 		int y = i / width;
 
@@ -64,7 +62,12 @@ void Othello::Draw(int offsetX, int offsetY)
 
 int Othello::Put(int x, int y, Color color)
 {
-	int index = 0;
+	int index = y * width + x;
+	if (cell[index] == Color::HOLE)
+	{
+		return 0;
+	}
+
 	int count = 0;
 	Color other = Color::EMPTY; //相手の色
 	if (color == Color::BLACK)
