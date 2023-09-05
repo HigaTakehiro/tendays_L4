@@ -65,6 +65,7 @@ void Othello::Draw(int offsetX, int offsetY)
 int Othello::Put(int x, int y, Color color)
 {
 	int index = 0;
+	int count = 0;
 	Color other = Color::EMPTY; //相手の色
 	if (color == Color::BLACK)
 	{
@@ -83,11 +84,11 @@ int Othello::Put(int x, int y, Color color)
 			{
 				continue;
 			}
-			if (x + j < 0 || y + i < 0|| x + j >= width || y + i >= height)
+			if (x + i < 0 || y + j < 0 || x + i >= width || y + j >= height)
 			{
 				continue;
 			}
-			index = (y + i) * width + (x + j);
+			index = (y + j) * width + (x + i);
 			if (cell[index] != other)
 			{
 				continue;
@@ -96,8 +97,8 @@ int Othello::Put(int x, int y, Color color)
 			const int size = 8;
 			for (int s = 2; s < size; s++)
 			{
-				index += i * width + j;
-				if (index >= 0 || index < cell.size())
+				index += j * width + i;
+				if (index >= 0 && index < cell.size())
 				{
 					if (cell[index] == Color::EMPTY)
 					{
@@ -108,10 +109,11 @@ int Othello::Put(int x, int y, Color color)
 					{
 						index = y * width + x;
 						cell[index] = color;
+						count += s;
 
 						for (int n = 1; n < s; n++)
 						{
-							index += i * width + j;
+							index += j * width + i;
 							cell[index] = color;
 						}
 
@@ -122,5 +124,5 @@ int Othello::Put(int x, int y, Color color)
 		}
 	}
 
-	return 0;
+	return count;
 }

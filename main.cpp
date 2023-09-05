@@ -84,7 +84,7 @@ int WINAPI WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _
 		}
 		if (key.IsKeyTrigger(KEY_INPUT_RETURN))
 		{
-			if (othello.Put(x, y, colorFlag) == 0)
+			if (othello.Put(x, y, colorFlag) != 0)
 			{
 				if (colorFlag == Color::BLACK)
 				{
