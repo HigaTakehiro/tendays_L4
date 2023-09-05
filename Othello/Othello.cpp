@@ -152,3 +152,13 @@ int Othello::Put(int x, int y, Color color)
 
 	return count;
 }
+
+Color Othello::GetCell(const size_t& index)
+{
+	if (index < 0 || index >= cell.size())
+	{
+		return Color::NONE;
+	}
+
+	return cell[index];
+}
