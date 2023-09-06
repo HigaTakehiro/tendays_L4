@@ -40,6 +40,8 @@ int WINAPI WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _
 
 	Othello othello;
 	othello.Init();
+	othello.Load("./Resource/StageData/tutorial.csv");
+
 	int x = 0;
 	int y = 0;
 	Color colorFlag = Color::BLACK;
@@ -72,10 +74,6 @@ int WINAPI WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _
 		}
 		else
 		{
-			if (key.IsKeyTrigger(KEY_INPUT_L))
-			{
-				othello.Load("./Resource/StageData/tutorial.csv");
-			}
 			if (key.IsKeyTrigger(KEY_INPUT_LEFT))
 			{
 				isMove = (x - 1) >= 0;

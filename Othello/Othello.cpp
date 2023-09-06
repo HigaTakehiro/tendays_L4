@@ -7,22 +7,16 @@
 
 Othello::Othello() :
 	cell{},
+	initCell{},
 	width(8),
 	height(8)
 {
-	cell.reserve(static_cast<size_t>(width * height));
 }
 
 void Othello::Init()
 {
-	cell.resize(static_cast<size_t>(width * height));
-
-	cell[27] = Color::BLACK;
-
-	cell[28] = Color::WHITE;
-	cell[35] = Color::WHITE;
-	cell[36] = Color::WHITE;
-	cell[37] = Color::WHITE;
+	cell.reserve(static_cast<size_t>(width * height));
+	initCell.reserve(cell.size());
 }
 
 void Othello::Draw(int offsetX, int offsetY)
@@ -40,8 +34,8 @@ void Othello::Draw(int offsetX, int offsetY)
 		int x = i % width;
 		int y = i / width;
 
-		unsigned int color = GetColor(0x00, 0xFF, 0x00);
-		if ((x + y) % 2) color = GetColor(0x00, 0xCC, 0x00);
+		unsigned int color = GetColor(0x00, 0xF0, 0x00);
+		if ((x + y) % 2) color = GetColor(0x00, 0xC0, 0x00);
 
 		DrawBox(circleSize * x + offsetX, circleSize * y + offsetY,
 				circleSize * (x + 1) + offsetX, circleSize * (y + 1) + offsetY, color, true);
@@ -67,18 +61,7 @@ void Othello::Reset()
 {
 	for (size_t i = 0; i < cell.size(); i++)
 	{
-		if (i == 27)
-		{
-			cell[i] = Color::BLACK;
-		}
-		else if (i == 28 || i == 35 || i == 36 || i == 37)
-		{
-			cell[i] = Color::WHITE;
-		}
-		else
-		{
-			cell[i] = Color::EMPTY;
-		}
+		cell[i] = initCell[i];
 	}
 }
 
@@ -197,6 +180,8 @@ int Othello::Load(const std::string& filePath)
 	{
 		cell.push_back(static_cast<Color>(cellArray[i]));
 	}
+
+	initCell = cell;
 
 	delete[] cellArray;
 	ifs.close();

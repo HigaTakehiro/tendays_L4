@@ -18,6 +18,7 @@ public:
 
 private: //メンバ変数
 	std::vector<Color> cell;
+	std::vector<Color> initCell;
 	int width;  //幅
 	int height; //高さ
 
