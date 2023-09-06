@@ -1,10 +1,14 @@
 ﻿#include "Othello.h"
 #include <DxLib.h>
 
+// ファイルの読み込み
+#include <fstream>
+#include "../File/LoadCSV.h"
+
 Othello::Othello() :
 	cell{},
 	width(8),
-	height(6)
+	height(8)
 {
 	cell.reserve(static_cast<size_t>(width * height));
 }
@@ -14,12 +18,11 @@ void Othello::Init()
 	cell.resize(static_cast<size_t>(width * height));
 
 	cell[27] = Color::BLACK;
-	cell[36] = Color::BLACK;
 
 	cell[28] = Color::WHITE;
 	cell[35] = Color::WHITE;
-
-	cell[37] = Color::HOLE;
+	cell[36] = Color::WHITE;
+	cell[37] = Color::WHITE;
 }
 
 void Othello::Draw(int offsetX, int offsetY)
@@ -64,17 +67,13 @@ void Othello::Reset()
 {
 	for (size_t i = 0; i < cell.size(); i++)
 	{
-		if (i == 27 || i == 36)
+		if (i == 27)
 		{
 			cell[i] = Color::BLACK;
 		}
-		else if (i == 28 || i == 35)
+		else if (i == 28 || i == 35 || i == 36 || i == 37)
 		{
 			cell[i] = Color::WHITE;
-		}
-		else if (i == 37)
-		{
-			cell[i] = Color::HOLE;
 		}
 		else
 		{
@@ -151,6 +150,57 @@ int Othello::Put(int x, int y, Color color)
 	}
 
 	return count;
+}
+
+int Othello::Load(const std::string& filePath)
+{
+	if (filePath.empty())
+	{
+		return -1;
+	}
+
+	cell.clear();
+
+	std::ifstream ifs(filePath);
+	std::string str;
+
+	if (ifs.fail())
+	{
+		OutputDebugStringA("ファイルが開けません。\n");
+		return -1;
+	}
+
+	getline(ifs, str);
+	int size[] = { 0, 0 };
+	int i = 0;
+	for (auto s : str)
+	{
+		if (s == ',' || s == '\n')
+		{
+			i++;
+			continue;
+		}
+		else if (s >= '0' && s <= '9')
+		{
+			size[i] *= 10;
+			size[i] += s - '0';
+		}
+	}
+
+	width = size[0];
+	height = size[1];
+
+	int* cellArray = new int[(width * height)];
+	File::LoadMapChip(ifs, cellArray, width * height);
+
+	for (int i = 0; i < width * height; i++)
+	{
+		cell.push_back(static_cast<Color>(cellArray[i]));
+	}
+
+	delete[] cellArray;
+	ifs.close();
+	return 0;
 }
 
 Color Othello::GetCell(const size_t& index)

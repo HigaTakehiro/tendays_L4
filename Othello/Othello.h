@@ -1,5 +1,6 @@
 ﻿#pragma once
 #include <vector>
+#include <string>
 
 enum Color
 {
@@ -12,15 +13,11 @@ enum Color
 
 class Othello
 {
-private:
-	template<class T>
-	using vector = std::vector<T>;
-
 public:
 	static const int circleSize = 90;
 
 private: //メンバ変数
-	vector<Color> cell;
+	std::vector<Color> cell;
 	int width;  //幅
 	int height; //高さ
 
@@ -37,6 +34,8 @@ public: //メンバ関数
 
 	// 石を置く
 	int Put(int x, int y, Color color);
+	// ステージ読み込み
+	int Load(const std::string& filePath);
 
 	int GetWidth() { return width; }
 	int GetHeight() { return height; }

@@ -6,10 +6,10 @@
 const char TITLE[] = "title";
 
 // ウィンドウ横幅
-const int WIN_WIDTH = 1360;
+const int WIN_WIDTH = 960;
 
 // ウィンドウ縦幅
-const int WIN_HEIGHT = 765;
+const int WIN_HEIGHT = 740;
 
 int WINAPI WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _In_ LPSTR lpCmdLine, _In_ int nCmdShow)
 {
@@ -72,6 +72,10 @@ int WINAPI WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _
 		}
 		else
 		{
+			if (key.IsKeyTrigger(KEY_INPUT_L))
+			{
+				othello.Load("./Resource/StageData/tutorial.csv");
+			}
 			if (key.IsKeyTrigger(KEY_INPUT_LEFT))
 			{
 				isMove = (x - 1) >= 0;
@@ -146,12 +150,8 @@ int WINAPI WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _
 		}
 
 		// 描画処理
-		int offsetX = 5;
-		int offsetY = 5;
-
-		othello.Draw(offsetX, offsetY);
-		DrawBox(x * Othello::circleSize + offsetX, y * Othello::circleSize + offsetY,
-				(x + 1) * Othello::circleSize + offsetX, (y + 1) * Othello::circleSize + offsetY, GetColor(0, 0, 0), false);
+		int offsetX = 10;
+		int offsetY = 10;
 
 		unsigned int color = 0;
 		if (colorFlag == Color::BLACK)
@@ -163,13 +163,17 @@ int WINAPI WinMain(_In_ HINSTANCE hInstance, _In_opt_ HINSTANCE hPrevInstance, _
 			color = GetColor(0xFF, 0xFF, 0xFF);
 		}
 
+		othello.Draw(offsetX, offsetY);
+		DrawBox(x * Othello::circleSize + 5 + offsetX, y * Othello::circleSize + 5 + offsetY,
+				(x + 1) * Othello::circleSize - 5 + offsetX, (y + 1) * Othello::circleSize - 5 + offsetY, GetColor(0, 0, 0), false);
+
 		if (isTie)
 		{
-			DrawString(800, Othello::circleSize, "引き分け", GetColor(0xFF, 0xFF, 0xFF));
+			DrawString(800 + offsetX, Othello::circleSize, "引き分け", GetColor(0xFF, 0xFF, 0xFF));
 		}
 		else
 		{
-			DrawCircle(800, Othello::circleSize, Othello::circleSize / 2, color);
+			DrawCircle(800 + offsetX, Othello::circleSize, Othello::circleSize / 2, color);
 		}
 
 		// (ダブルバッファ)裏面

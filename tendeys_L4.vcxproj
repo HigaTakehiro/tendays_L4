@@ -19,11 +19,13 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="File\LoadCSV.cpp" />
     <ClCompile Include="Input\KeyInput.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Othello\Othello.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="File\LoadCSV.h" />
     <ClInclude Include="Input\KeyInput.h" />
     <ClInclude Include="Othello\Othello.h" />
   </ItemGroup>
