@@ -33,6 +33,7 @@
   <ItemGroup>
     <ClInclude Include="File\LoadCSV.h" />
     <ClInclude Include="Input\KeyInput.h" />
+    <ClInclude Include="Othello\Cell.h" />
     <ClInclude Include="Othello\Othello.h" />
     <ClInclude Include="Scene\BaseScene.h" />
     <ClInclude Include="Scene\GameScene.h" />

@@ -101,5 +101,8 @@
     <ClInclude Include="Scene\SelectScene.h">
       <Filter>Scene\Select</Filter>
     </ClInclude>
+    <ClInclude Include="Othello\Cell.h">
+      <Filter>Othello</Filter>
+    </ClInclude>
   </ItemGroup>
 </Project>

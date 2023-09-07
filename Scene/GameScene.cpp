@@ -22,6 +22,7 @@ GameScene::~GameScene()
 void GameScene::Init()
 {
 	othello.Load("./Resources/StageData/stage01_HIGA.csv");
+	colorFlag = othello.GetStartColor();
 }
 
 int GameScene::Update(const KeyInput& input)

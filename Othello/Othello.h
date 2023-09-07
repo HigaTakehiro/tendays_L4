@@ -21,6 +21,7 @@ private: //メンバ変数
 	std::vector<Color> initCell;
 	int width;  //幅
 	int height; //高さ
+	bool startColor; //開始時の色
 
 public: //メンバ関数
 	Othello();
@@ -41,8 +42,9 @@ public: //メンバ関数
 	// スキップ判定
 	bool IsSkip(Color color);
 
-	int GetWidth() { return width; }
-	int GetHeight() { return height; }
-	size_t GetSize() { return cell.size(); }
-	Color GetCell(const size_t& index);
+	int GetWidth() const { return width; }
+	int GetHeight() const { return height; }
+	size_t GetSize() const { return cell.size(); }
+	Color GetCell(const size_t& index) const;
+	Color GetStartColor() const;
 };

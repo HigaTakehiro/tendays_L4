@@ -258,7 +258,7 @@ int Othello::Load(const std::string& filePath)
 	}
 
 	getline(ifs, str);
-	int size[] = { 0, 0 };
+	int num[] = { 0, 0, 0 };
 	int i = 0;
 	for (auto s : str)
 	{
@@ -269,13 +269,14 @@ int Othello::Load(const std::string& filePath)
 		}
 		else if (s >= '0' && s <= '9')
 		{
-			size[i] *= 10;
-			size[i] += s - '0';
+			num[i] *= 10;
+			num[i] += s - '0';
 		}
 	}
 
-	width = size[0];
-	height = size[1];
+	width = num[0];
+	height = num[1];
+	startColor = num[2];
 
 	int* cellArray = new int[(width * height)];
 	File::LoadMapChip(ifs, cellArray, width * height);
@@ -292,7 +293,7 @@ int Othello::Load(const std::string& filePath)
 	return 0;
 }
 
-Color Othello::GetCell(const size_t& index)
+Color Othello::GetCell(const size_t& index) const
 {
 	if (index < 0 || index >= cell.size())
 	{
@@ -300,4 +301,16 @@ Color Othello::GetCell(const size_t& index)
 	}
 
 	return cell[index];
+}
+
+Color Othello::GetStartColor() const
+{
+	if (startColor)
+	{
+		return Color::WHITE;
+	}
+	else
+	{
+		return Color::BLACK;
+	}
 }
