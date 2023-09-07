@@ -68,7 +68,7 @@ void Othello::Reset()
 int Othello::Put(int x, int y, Color color)
 {
 	int index = y * width + x;
-	if (cell[index] == Color::HOLE)
+	if (cell[index] != Color::EMPTY)
 	{
 		return 0;
 	}

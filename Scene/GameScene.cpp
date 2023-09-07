@@ -19,7 +19,7 @@ GameScene::~GameScene()
 
 void GameScene::Init()
 {
-	othello.Load("./Resource/StageData/tutorial.csv");
+	othello.Load("./Resources/StageData/stage04_HIGA.csv");
 }
 
 int GameScene::Update(const KeyInput& input)
