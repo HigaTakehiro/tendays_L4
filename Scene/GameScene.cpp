@@ -8,7 +8,9 @@ GameScene::GameScene(SceneManager* sceneMgr) :
 	colorFlag(Color::BLACK),
 	bCount(0),
 	wCount(0),
-	isTie(false)
+	isTie(false),
+	isSkip(false),
+	isFin(false)
 {
 	othello.Init();
 }
@@ -19,15 +21,17 @@ GameScene::~GameScene()
 
 void GameScene::Init()
 {
-	othello.Load("./Resources/StageData/stage04_HIGA.csv");
+	othello.Load("./Resources/StageData/stage01_HIGA.csv");
 }
 
 int GameScene::Update(const KeyInput& input)
 {
 	bool isMove = false;
 
-	if (isTie)
+	if (isFin)
 	{
+		isTie = (bCount == wCount);
+
 		if (input.IsKeyTrigger(KEY_INPUT_RETURN))
 		{
 			sceneMgr->SceneChange(Scene::Title, true);
@@ -85,34 +89,58 @@ int GameScene::Update(const KeyInput& input)
 		}
 		if (input.IsKeyTrigger(KEY_INPUT_RETURN))
 		{
-			if (othello.Put(x, y, colorFlag) != 0)
+			if (othello.IsSkip(colorFlag))
 			{
-				if (colorFlag == Color::BLACK)
+				if (isSkip)
 				{
-					colorFlag = Color::WHITE;
+					isFin = true;
 				}
-				else if (colorFlag == Color::WHITE)
+				else
 				{
-					colorFlag = Color::BLACK;
+					isSkip = true;
+
+					if (colorFlag == Color::BLACK)
+					{
+						colorFlag = Color::WHITE;
+					}
+					else if (colorFlag == Color::WHITE)
+					{
+						colorFlag = Color::BLACK;
+					}
 				}
 			}
-
-			bCount = 0;
-			wCount = 0;
-
-			for (size_t i = 0; i < othello.GetSize(); i++)
+			else
 			{
-				if (othello.GetCell(i) == Color::BLACK)
+
+				isSkip = false;
+
+				if (othello.Put(x, y, colorFlag) != 0)
 				{
-					bCount++;
+					if (colorFlag == Color::BLACK)
+					{
+						colorFlag = Color::WHITE;
+					}
+					else if (colorFlag == Color::WHITE)
+					{
+						colorFlag = Color::BLACK;
+					}
 				}
-				else if (othello.GetCell(i) == Color::WHITE)
+
+				bCount = 0;
+				wCount = 0;
+
+				for (size_t i = 0; i < othello.GetSize(); i++)
 				{
-					wCount++;
+					if (othello.GetCell(i) == Color::BLACK)
+					{
+						bCount++;
+					}
+					else if (othello.GetCell(i) == Color::WHITE)
+					{
+						wCount++;
+					}
 				}
 			}
-
-			isTie = (bCount == wCount);
 		}
 	}
 
@@ -141,6 +169,10 @@ void GameScene::Draw()
 	if (isTie)
 	{
 		DrawString(800 + offsetX, Othello::circleSize, "引き分け", GetColor(0xFF, 0xFF, 0xFF));
+	}
+	else if (isFin)
+	{
+		DrawString(800 + offsetX, Othello::circleSize, "置ける場所が無い", GetColor(0xFF, 0xFF, 0xFF));
 	}
 	else
 	{

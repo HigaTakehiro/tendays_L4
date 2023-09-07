@@ -38,6 +38,9 @@ public: //メンバ関数
 	// ステージ読み込み
 	int Load(const std::string& filePath);
 
+	// スキップ判定
+	bool IsSkip(Color color);
+
 	int GetWidth() { return width; }
 	int GetHeight() { return height; }
 	size_t GetSize() { return cell.size(); }

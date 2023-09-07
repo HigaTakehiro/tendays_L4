@@ -14,6 +14,8 @@ private: //メンバ変数
 	int bCount; //黒の個数
 	int wCount; //白の個数
 	bool isTie;
+	bool isSkip;
+	bool isFin;
 
 public: //メンバ関数
 	GameScene(SceneManager* sceneMgr);
