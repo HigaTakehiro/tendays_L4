@@ -10,17 +10,17 @@ void KeyInput::Update()
 	GetHitKeyStateAll(keys);
 }
 
-bool KeyInput::IsKey(int KeyCode)
+bool KeyInput::IsKey(int KeyCode) const
 {
 	return keys[KeyCode];
 }
 
-bool KeyInput::IsKeyTrigger(int KeyCode)
+bool KeyInput::IsKeyTrigger(int KeyCode) const
 {
 	return keys[KeyCode] && !oldkeys[KeyCode];
 }
 
-bool KeyInput::IsKeyReturn(int KeyCode)
+bool KeyInput::IsKeyReturn(int KeyCode) const
 {
 	return !keys[KeyCode] && oldkeys[KeyCode];
 }

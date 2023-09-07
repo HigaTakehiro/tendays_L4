@@ -13,9 +13,9 @@ public: //メンバ関数
 	// 更新処理
 	void Update();
 	// キーを押しているかどうかの判定
-	bool IsKey(int KeyCode);
+	bool IsKey(int KeyCode) const;
 	// キーを押した瞬間かどうかの判定
-	bool IsKeyTrigger(int KeyCode);
+	bool IsKeyTrigger(int KeyCode) const;
 	// キーを離した瞬間かどうかの判定
-	bool IsKeyReturn(int KeyCode);
+	bool IsKeyReturn(int KeyCode) const;
 };
