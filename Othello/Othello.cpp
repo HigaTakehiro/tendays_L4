@@ -17,6 +17,27 @@ void Othello::Init()
 {
 	cell.reserve(static_cast<size_t>(width * height));
 	initCell.reserve(cell.size());
+
+	//cell.resize(static_cast<size_t>(width * height));
+
+	//cell[9] = BLACK;
+	//cell[18] = BLACK;
+	//cell[27] = BLACK;
+	//cell[36] = BLACK;
+	//cell[45] = BLACK;
+	//cell[54] = BLACK;
+	//cell[63] = BLACK;
+
+	//cell[7] = WHITE;
+	//cell[14] = WHITE;
+	//cell[21] = WHITE;
+	//cell[28] = WHITE;
+	//cell[35] = WHITE;
+	//cell[42] = WHITE;
+	//cell[49] = WHITE;
+	//cell[56] = WHITE;
+
+	//initCell = cell;
 }
 
 void Othello::Draw(int offsetX, int offsetY)
@@ -92,11 +113,11 @@ int Othello::Put(int x, int y, Color color)
 			{
 				continue;
 			}
-			if (x + i < 0 || y + j < 0 || x + i >= width || y + j >= height)
+			if (x + j < 0 || y + i < 0 || x + j >= width || y + i >= height)
 			{
 				continue;
 			}
-			index = (y + j) * width + (x + i);
+			index = (y + i) * width + (x + j);
 			if (cell[index] != other)
 			{
 				continue;
@@ -105,10 +126,15 @@ int Othello::Put(int x, int y, Color color)
 			const int size = 8;
 			for (int s = 2; s < size; s++)
 			{
-				index += j * width + i;
+				if (x + (j * s) < 0 || y + (i * s) < 0 || x + (j * s) >= width || y + (i * s) >= height)
+				{
+					break;
+				}
+
+				index += i * width + j;
 				if (index >= 0 && index < cell.size())
 				{
-					if (cell[index] == Color::EMPTY)
+					if (cell[index] != Color::BLACK && cell[index] != Color::WHITE)
 					{
 						break;
 					}
@@ -121,7 +147,7 @@ int Othello::Put(int x, int y, Color color)
 
 						for (int n = 1; n < s; n++)
 						{
-							index += j * width + i;
+							index += i * width + j;
 							cell[index] = color;
 						}
 
