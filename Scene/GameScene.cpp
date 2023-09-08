@@ -5,7 +5,7 @@ GameScene::GameScene(SceneManager* sceneMgr) :
 	BaseScene(sceneMgr),
 	x(0),
 	y(0),
-	colorFlag(Color::BLACK),
+	colorFlag(ColorFlag::BLACK),
 	bCount(0),
 	wCount(0),
 	isTie(false),
@@ -21,14 +21,36 @@ GameScene::~GameScene()
 
 void GameScene::Init()
 {
-	othello.Load("./Resources/StageData/stage01_HIGA.csv");
+	othello.Load("./Resources/StageData/Test.csv");
 	colorFlag = othello.GetStartColor();
+
+	bCount = 0;
+	wCount = 0;
+
+	for (size_t i = 0; i < othello.GetSize(); i++)
+	{
+		if (othello.GetCell(i) == ColorFlag::BLACK || othello.GetCell(i) == ColorFlag::BIG_B)
+		{
+			bCount++;
+		}
+		else if (othello.GetCell(i) == ColorFlag::WHITE || othello.GetCell(i) == ColorFlag::BIG_W)
+		{
+			wCount++;
+		}
+	}
 }
 
 int GameScene::Update(const KeyInput& input)
 {
 	bool isMove = false;
 
+	if (input.IsKeyTrigger(KEY_INPUT_R))
+	{
+		// リセット
+		othello.Reset();
+		colorFlag = ColorFlag::BLACK;
+		isTie = false;
+	}
 	if (isFin)
 	{
 		isTie = (bCount == wCount);
@@ -41,17 +63,14 @@ int GameScene::Update(const KeyInput& input)
 	}
 	else
 	{
-		if (input.IsKeyTrigger(KEY_INPUT_R))
+		if (input.IsKeyTrigger(KEY_INPUT_T))
 		{
-			// リセット
-			othello.Reset();
-			colorFlag = Color::BLACK;
-			isTie = false;
+			othello.BigPut(15, ColorFlag::BIG_B);
 		}
 		if (input.IsKeyTrigger(KEY_INPUT_LEFT))
 		{
 			isMove = (x - 1) >= 0;
-			isMove &= othello.GetCell(static_cast<size_t>(y * othello.GetWidth() + x - 1)) != Color::HOLE;
+			isMove &= othello.GetCell(static_cast<size_t>(y * othello.GetWidth() + x - 1)) != ColorFlag::HOLE;
 
 			if (isMove)
 			{
@@ -61,7 +80,7 @@ int GameScene::Update(const KeyInput& input)
 		if (input.IsKeyTrigger(KEY_INPUT_RIGHT))
 		{
 			isMove = (x + 1) < othello.GetWidth();
-			isMove &= othello.GetCell(static_cast<size_t>(y * othello.GetWidth() + x + 1)) != Color::HOLE;
+			isMove &= othello.GetCell(static_cast<size_t>(y * othello.GetWidth() + x + 1)) != ColorFlag::HOLE;
 
 			if (isMove)
 			{
@@ -71,7 +90,7 @@ int GameScene::Update(const KeyInput& input)
 		if (input.IsKeyTrigger(KEY_INPUT_UP))
 		{
 			isMove = (y - 1) >= 0;
-			isMove &= othello.GetCell(static_cast<size_t>((y - 1) * othello.GetWidth() + x)) != Color::HOLE;
+			isMove &= othello.GetCell(static_cast<size_t>((y - 1) * othello.GetWidth() + x)) != ColorFlag::HOLE;
 
 			if (isMove)
 			{
@@ -81,7 +100,7 @@ int GameScene::Update(const KeyInput& input)
 		if (input.IsKeyTrigger(KEY_INPUT_DOWN))
 		{
 			isMove = (y + 1) < othello.GetHeight();
-			isMove &= othello.GetCell(static_cast<size_t>((y + 1) * othello.GetWidth() + x)) != Color::HOLE;
+			isMove &= othello.GetCell(static_cast<size_t>((y + 1) * othello.GetWidth() + x)) != ColorFlag::HOLE;
 
 			if (isMove)
 			{
@@ -100,13 +119,13 @@ int GameScene::Update(const KeyInput& input)
 				{
 					isSkip = true;
 
-					if (colorFlag == Color::BLACK)
+					if (colorFlag == ColorFlag::BLACK)
 					{
-						colorFlag = Color::WHITE;
+						colorFlag = ColorFlag::WHITE;
 					}
-					else if (colorFlag == Color::WHITE)
+					else if (colorFlag == ColorFlag::WHITE)
 					{
-						colorFlag = Color::BLACK;
+						colorFlag = ColorFlag::BLACK;
 					}
 				}
 			}
@@ -117,13 +136,13 @@ int GameScene::Update(const KeyInput& input)
 
 				if (othello.Put(x, y, colorFlag) != 0)
 				{
-					if (colorFlag == Color::BLACK)
+					if (colorFlag == ColorFlag::BLACK)
 					{
-						colorFlag = Color::WHITE;
+						colorFlag = ColorFlag::WHITE;
 					}
-					else if (colorFlag == Color::WHITE)
+					else if (colorFlag == ColorFlag::WHITE)
 					{
-						colorFlag = Color::BLACK;
+						colorFlag = ColorFlag::BLACK;
 					}
 				}
 
@@ -132,11 +151,11 @@ int GameScene::Update(const KeyInput& input)
 
 				for (size_t i = 0; i < othello.GetSize(); i++)
 				{
-					if (othello.GetCell(i) == Color::BLACK)
+					if (othello.GetCell(i) == ColorFlag::BLACK || othello.GetCell(i) == ColorFlag::BIG_B)
 					{
 						bCount++;
 					}
-					else if (othello.GetCell(i) == Color::WHITE)
+					else if (othello.GetCell(i) == ColorFlag::WHITE || othello.GetCell(i) == ColorFlag::BIG_W)
 					{
 						wCount++;
 					}
@@ -154,11 +173,11 @@ void GameScene::Draw()
 	int offsetY = 10;
 	unsigned int color = 0;
 
-	if (colorFlag == Color::BLACK)
+	if (colorFlag == ColorFlag::BLACK)
 	{
 		color = GetColor(0x00, 0x00, 0x00);
 	}
-	else if (colorFlag == Color::WHITE)
+	else if (colorFlag == ColorFlag::WHITE)
 	{
 		color = GetColor(0xFF, 0xFF, 0xFF);
 	}
@@ -179,4 +198,7 @@ void GameScene::Draw()
 	{
 		DrawCircle(800 + offsetX, Othello::circleSize, Othello::circleSize / 2, color);
 	}
+
+	DrawFormatString(800 + offsetX, 200, GetColor(0xFF, 0xFF, 0xFF), "黒:%d", bCount);
+	DrawFormatString(800 + offsetX, 220, GetColor(0xFF, 0xFF, 0xFF), "白:%d", wCount);
 }

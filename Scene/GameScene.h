@@ -9,7 +9,7 @@ private: //メンバ変数
 
 	int x;
 	int y;
-	Color colorFlag;
+	ColorFlag colorFlag;
 
 	int bCount; //黒の個数
 	int wCount; //白の個数
