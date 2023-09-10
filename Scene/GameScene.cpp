@@ -27,7 +27,7 @@ void GameScene::Init()
 	bCount = 0;
 	wCount = 0;
 
-	for (size_t i = 0; i < othello.GetSize(); i++)
+	for (int i = 0; i < othello.GetSize(); i++)
 	{
 		if (othello.GetCell(i) == ColorFlag::BLACK || othello.GetCell(i) == ColorFlag::BIG_B)
 		{
@@ -65,7 +65,7 @@ int GameScene::Update(const KeyInput& input)
 	{
 		if (input.IsKeyTrigger(KEY_INPUT_T))
 		{
-			othello.BigPut(15, ColorFlag::BIG_B);
+			othello.IsSkip(ColorFlag::WHITE);
 		}
 		if (input.IsKeyTrigger(KEY_INPUT_LEFT))
 		{
@@ -149,7 +149,7 @@ int GameScene::Update(const KeyInput& input)
 				bCount = 0;
 				wCount = 0;
 
-				for (size_t i = 0; i < othello.GetSize(); i++)
+				for (int i = 0; i < othello.GetSize(); i++)
 				{
 					if (othello.GetCell(i) == ColorFlag::BLACK || othello.GetCell(i) == ColorFlag::BIG_B)
 					{

@@ -5,7 +5,7 @@
 
 class Othello
 {
-private: //サブクラス
+public: //サブクラス
 	enum Direction
 	{
 		LEFT,
@@ -36,17 +36,13 @@ public: //メンバ関数
 
 	// 石を置く
 	int Put(int x, int y, ColorFlag color);
-	// デカマスに石を置く
-	int BigPut(int index, ColorFlag color);
-	// デカマスの反転
-	int BigFlip(int index);
-
-	// ステージ読み込み
-	int Load(const std::string& filePath);
 	// スキップ判定
 	bool IsSkip(ColorFlag color);
-	// 特定の方向に進んだ時に挟むことが出来るかどうか
-	int IsPinchedDirection(int index, Direction dir, ColorFlag startColor, bool isStart = true);
+
+	// デカマスの置き換え
+	int BigChange(int index, ColorFlag color);
+	// ステージ読み込み
+	int Load(const std::string& filePath);
 
 	int GetWidth() const { return width; }
 	int GetHeight() const { return height; }

@@ -2,13 +2,13 @@
 
 enum ColorFlag
 {
-	EMPTY,
-	BLACK,
-	WHITE,
-	HOLE,
-	BIG_E,
-	BIG_B,
-	BIG_W
+	EMPTY, //空白
+	BLACK, //黒
+	WHITE, //白
+	HOLE,  //穴
+	BIG_E, //空白（デカマス）
+	BIG_B, //黒（デカマス）
+	BIG_W  //白（デカマス）
 };
 
 enum BigCell

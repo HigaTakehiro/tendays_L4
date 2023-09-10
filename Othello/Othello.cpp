@@ -114,129 +114,710 @@ void Othello::Reset()
 
 int Othello::Put(int x, int y, ColorFlag color)
 {
-	int index = y * width + x;
-	if (cell[index].colorFlag != ColorFlag::EMPTY)
-	{
-		return 0;
-	}
-
 	int count = 0;
-	ColorFlag scaleColor = ColorFlag::EMPTY; //自分の色
+
+	ColorFlag skipColor[] = {
+		ColorFlag::EMPTY,
+		ColorFlag::HOLE,
+		ColorFlag::BIG_E
+	};
+
+	ColorFlag bigColor = ColorFlag::EMPTY; //自分の色
 	ColorFlag other = ColorFlag::EMPTY; //相手の色
 	ColorFlag bigOther = ColorFlag::EMPTY; //相手の色
+	if (color == ColorFlag::BIG_B)
+	{
+		color = ColorFlag::BLACK;
+	}
+	else if (color == ColorFlag::BIG_W)
+	{
+		color = ColorFlag::WHITE;
+	}
 	if (color == ColorFlag::BLACK)
 	{
-		scaleColor = ColorFlag::BIG_B;
+		bigColor = ColorFlag::BIG_B;
 		other = ColorFlag::WHITE;
 		bigOther = ColorFlag::BIG_W;
 	}
 	else if (color == ColorFlag::WHITE)
 	{
-		scaleColor = ColorFlag::BIG_W;
-		other = ColorFlag::BLACK;
-		bigOther = ColorFlag::BIG_B;
-	}
-	else if (color == ColorFlag::BIG_B)
-	{
-		scaleColor = ColorFlag::BLACK;
-		other = ColorFlag::WHITE;
-		bigOther = ColorFlag::BIG_W;
-	}
-	else if (color == ColorFlag::BIG_W)
-	{
-		scaleColor = ColorFlag::WHITE;
+		bigColor = ColorFlag::BIG_W;
 		other = ColorFlag::BLACK;
 		bigOther = ColorFlag::BIG_B;
 	}
 
-	for (int dirY = -1; dirY <= 1; dirY++)
+	int index = y * width + x;
+	bool isBigB = false; //デカマスを通るかどうか(自分の色)
+	bool isBigW = false; //デカマスを通るかどうか(相手の色)
+
+	if (cell[index].colorFlag != ColorFlag::EMPTY && cell[index].colorFlag != ColorFlag::BIG_E)
 	{
-		for (int dirX = -1; dirX <= 1; dirX++)
+		return 0;
+	}
+
+	if (cell[index].colorFlag == ColorFlag::EMPTY)
+	{
+		for (int dirY = -1; dirY <= 1; dirY++)
 		{
-			if (dirY == 0 && dirX == 0)
+			for (int dirX = -1; dirX <= 1; dirX++)
 			{
-				continue;
-			}
-			if (x + dirX < 0 || y + dirY < 0 || x + dirX >= width || y + dirY >= height)
-			{
-				continue;
-			}
-			index = (y + dirY) * width + (x + dirX);
-			if (cell[index].colorFlag != other && cell[index].colorFlag != bigOther)
-			{
-				continue;
-			}
-
-			ColorFlag skipColor[] =
-			{
-				ColorFlag::EMPTY,
-				ColorFlag::HOLE
-			};
-
-			const int size = 8;
-			for (int s = 2; s < size; s++)
-			{
-				if (x + (dirX * s) < 0 || y + (dirY * s) < 0 || x + (dirX * s) >= width || y + (dirY * s) >= height)
+				if (dirY == 0 && dirX == 0)
 				{
-					break;
+					continue;
+				}
+				if (x + dirX < 0 || y + dirY < 0 || x + dirX >= width || y + dirY >= height)
+				{
+					continue;
 				}
 
-				index += dirY * width + dirX;
-				if (index >= 0 && index < cell.size())
+				index = (y + dirY) * width + (x + dirX);
+				isBigW = false;
+				if (cell[index].colorFlag == bigOther)
 				{
-					bool flag = false;
-					for (auto dirX : skipColor)
+					isBigW = true;
+				}
+				else if (cell[index].colorFlag != other)
+				{
+					continue;
+				}
+
+				const int size = (width > height) ? width : height;
+				for (int s = 2; s < size; s++)
+				{
+					if (x + (dirX * s) < 0 || y + (dirY * s) < 0 || x + (dirX * s) >= width || y + (dirY * s) >= height)
 					{
-						if (dirX == cell[index].colorFlag)
+						break;
+					}
+
+					index += dirY * width + dirX;
+					if (index >= 0 && index < cell.size())
+					{
+						bool flag = false;
+						for (auto i : skipColor)
+						{
+							if (cell[index].colorFlag == i)
+							{
+								flag = true;
+								break;
+							}
+						}
+						if (flag)
 						{
 							break;
 						}
-					}
-					if (flag)
-					{
-						break;
-					}
 
-					if (cell[index].colorFlag == color || cell[index].colorFlag == scaleColor)
-					{
-						index = y * width + x;
-
-						for (int n = 0; n < s; n++)
+						if (cell[index].colorFlag == color)
 						{
-							if (cell[index].colorFlag >= ColorFlag::EMPTY && cell[index].colorFlag < ColorFlag::HOLE)
+							if (isBigW || isBigB)
 							{
-								cell[index].colorFlag = color;
+								break;
+							}
+
+							index = y * width + x;
+							cell[index].colorFlag = color;
+
+							for (int n = 1; n < s; n++)
+							{
 								index += dirY * width + dirX;
-								count += 1;
+								if (cell[index].colorFlag >= ColorFlag::EMPTY && cell[index].colorFlag < ColorFlag::HOLE)
+								{
+									cell[index].colorFlag = color;
+									count += 1;
+								}
+								else if (cell[index].colorFlag >= ColorFlag::BIG_E && cell[index].colorFlag <= ColorFlag::BIG_W)
+								{
+									index += dirY * width + dirX;
+									n++;
+									BigChange(index, bigColor);
+									count += 4;
+								}
 							}
-							else if (cell[index].colorFlag == ColorFlag::BIG_B || cell[index].colorFlag == ColorFlag::BIG_W)
+							break;
+						}
+						else if (cell[index].colorFlag == bigColor)
+						{
+							if (isBigW)
 							{
-								BigFlip(index);
-								index += (dirY * width + dirX) * 2;
-								count += 4;
+								break;
 							}
-							else if (cell[index].colorFlag == ColorFlag::BIG_E)
+
+							if (isBigB)
 							{
-								BigPut(index, color);
-								index += (dirY * width + dirX) * 2;
-								count += 4;
+								index = y * width + x;
+								cell[index].colorFlag = color;
+
+								for (int n = 1; n < s; n++)
+								{
+									index += dirY * width + dirX;
+									if (cell[index].colorFlag >= ColorFlag::EMPTY && cell[index].colorFlag < ColorFlag::HOLE)
+									{
+										cell[index].colorFlag = color;
+										count += 1;
+									}
+									else if (cell[index].colorFlag >= ColorFlag::BIG_E && cell[index].colorFlag <= ColorFlag::BIG_W)
+									{
+										index += dirY * width + dirX;
+										n++;
+										BigChange(index, bigColor);
+										count += 4;
+									}
+								}
+								break;
+							}
+
+							isBigB = !isBigB;
+						}
+						else if (cell[index].colorFlag == other)
+						{
+							if (isBigW)
+							{
+								break;
 							}
 						}
-
-						break;
+						else if (cell[index].colorFlag == bigOther)
+						{
+							isBigW = !isBigW;
+						}
 					}
 				}
 			}
+		}
+
+		if (count > 0)
+		{
+			count += 1;
+		}
+	}
+	else if (cell[index].colorFlag == ColorFlag::BIG_E)
+	{
+		int indexLT = index;
+		if (cell[index].GetBigCell() % 2 == 1)
+		{
+			indexLT -= 1;
+		}
+		if (cell[index].GetBigCell() / 2 == 1)
+		{
+			indexLT -= width;
+		}
+
+		for (int i = 0; i < 4; i++)
+		{
+			index = indexLT;
+			if (i % 2 == 1)
+			{
+				index += 1;
+			}
+			if (i / 2 == 1)
+			{
+				index += width;
+			}
+			x = index % width;
+			y = index / width;
+
+			for (int dir = 0; dir < 3; dir++)
+			{
+				int dirX = 0, dirY = 0;
+
+				switch (i)
+				{
+				case BigCell::LT:
+					if (dir % 2 == 0)
+					{
+						dirX = -1;
+					}
+					if (dir / 2 == 0)
+					{
+						dirY = -1;
+					}
+					break;
+				case BigCell::RT:
+					if (dir % 2 == 1)
+					{
+						dirX = +1;
+					}
+					if (dir / 2 == 0)
+					{
+						dirY = -1;
+					}
+					break;
+				case BigCell::LB:
+					if (dir % 2 == 0)
+					{
+						dirX = -1;
+					}
+					if (dir / 2 == 1)
+					{
+						dirY = +1;
+					}
+					break;
+				case BigCell::RB:
+					if (dir % 2 == 1)
+					{
+						dirX = +1;
+					}
+					if (dir / 2 == 1)
+					{
+						dirY = +1;
+					}
+					break;
+				default:
+					break;
+				}
+
+				if (x + dirX < 0 || y + dirY < 0 || x + dirX >= width || y + dirY >= height)
+				{
+					continue;
+				}
+
+				index = (y + dirY) * width + (x + dirX);
+				isBigW = false;
+				if (cell[index].colorFlag == bigOther)
+				{
+					isBigW = true;
+				}
+				else if (cell[index].colorFlag != other)
+				{
+					continue;
+				}
+
+				const int size = (width > height) ? width : height;
+				for (int s = 2; s < size; s++)
+				{
+					if (x + (dirX * s) < 0 || y + (dirY * s) < 0 || x + (dirX * s) >= width || y + (dirY * s) >= height)
+					{
+						break;
+					}
+
+					index += dirY * width + dirX;
+					if (index >= 0 && index < cell.size())
+					{
+						bool flag = false;
+						for (auto j : skipColor)
+						{
+							if (cell[index].colorFlag == j)
+							{
+								flag = true;
+								break;
+							}
+						}
+						if (flag)
+						{
+							break;
+						}
+
+						if (cell[index].colorFlag == color)
+						{
+							if (isBigW || isBigB)
+							{
+								break;
+							}
+
+							index = y * width + x;
+							BigChange(index, bigColor);
+
+							for (int n = 1; n < s; n++)
+							{
+								index += dirY * width + dirX;
+								if (cell[index].colorFlag >= ColorFlag::EMPTY && cell[index].colorFlag < ColorFlag::HOLE)
+								{
+									cell[index].colorFlag = color;
+									count += 1;
+								}
+								else if (cell[index].colorFlag >= ColorFlag::BIG_E && cell[index].colorFlag <= ColorFlag::BIG_W)
+								{
+									index += dirY * width + dirX;
+									n++;
+									BigChange(index, bigColor);
+									count += 4;
+								}
+							}
+							break;
+						}
+						else if (cell[index].colorFlag == bigColor)
+						{
+							if (isBigW)
+							{
+								break;
+							}
+
+							if (isBigB)
+							{
+								index = y * width + x;
+								BigChange(index, bigColor);
+
+								for (int n = 1; n < s; n++)
+								{
+									index += dirY * width + dirX;
+									if (cell[index].colorFlag >= ColorFlag::EMPTY && cell[index].colorFlag < ColorFlag::HOLE)
+									{
+										cell[index].colorFlag = color;
+										count += 1;
+									}
+									else if (cell[index].colorFlag >= ColorFlag::BIG_E && cell[index].colorFlag <= ColorFlag::BIG_W)
+									{
+										index += dirY * width + dirX;
+										n++;
+										BigChange(index, bigColor);
+										count += 4;
+									}
+								}
+								break;
+							}
+
+							isBigB = !isBigB;
+						}
+						else if (cell[index].colorFlag == other)
+						{
+							if (isBigW)
+							{
+								break;
+							}
+						}
+						else if (cell[index].colorFlag == bigOther)
+						{
+							isBigW = !isBigW;
+						}
+					}
+				}
+			}
+		}
+
+		if (count > 0)
+		{
+			count += 4;
 		}
 	}
 
 	return count;
 }
 
-int Othello::BigPut(int index, ColorFlag color)
+bool Othello::IsSkip(ColorFlag color)
+{
+	bool result = true;
+
+	ColorFlag skipColor[] = {
+		ColorFlag::EMPTY,
+		ColorFlag::HOLE,
+		ColorFlag::BIG_E
+	};
+
+	ColorFlag bigColor = ColorFlag::EMPTY; //自分の色
+	ColorFlag other = ColorFlag::EMPTY; //相手の色
+	ColorFlag bigOther = ColorFlag::EMPTY; //相手の色
+	if (color == ColorFlag::BIG_B)
+	{
+		color = ColorFlag::BLACK;
+	}
+	else if (color == ColorFlag::BIG_W)
+	{
+		color = ColorFlag::WHITE;
+	}
+	if (color == ColorFlag::BLACK)
+	{
+		bigColor = ColorFlag::BIG_B;
+		other = ColorFlag::WHITE;
+		bigOther = ColorFlag::BIG_W;
+	}
+	else if (color == ColorFlag::WHITE)
+	{
+		bigColor = ColorFlag::BIG_W;
+		other = ColorFlag::BLACK;
+		bigOther = ColorFlag::BIG_B;
+	}
+
+	bool isBigB = false; //デカマスを通るかどうか(自分の色)
+	bool isBigW = false; //デカマスを通るかどうか(相手の色)
+
+	for (int i = 0; i < width * height; i++)
+	{
+		if (cell[i].colorFlag != ColorFlag::EMPTY && cell[i].colorFlag != ColorFlag::BIG_E)
+		{
+			continue;
+		}
+
+		int index = i;
+		int x = i % width;
+		int y = i / width;
+
+		if (cell[i].colorFlag == ColorFlag::EMPTY)
+		{
+			for (int dirY = -1; dirY <= 1; dirY++)
+			{
+				for (int dirX = -1; dirX <= 1; dirX++)
+				{
+					if (dirY == 0 && dirX == 0)
+					{
+						continue;
+					}
+					if (x + dirX < 0 || y + dirY < 0 || x + dirX >= width || y + dirY >= height)
+					{
+						continue;
+					}
+
+					index = (y + dirY) * width + (x + dirX);
+					isBigW = false;
+					if (cell[index].colorFlag == bigOther)
+					{
+						isBigW = true;
+					}
+					else if (cell[index].colorFlag != other)
+					{
+						continue;
+					}
+
+					const int size = (width > height) ? width : height;
+					for (int s = 2; s < size; s++)
+					{
+						if (x + (dirX * s) < 0 || y + (dirY * s) < 0 || x + (dirX * s) >= width || y + (dirY * s) >= height)
+						{
+							break;
+						}
+
+						index += dirY * width + dirX;
+						if (index >= 0 && index < cell.size())
+						{
+							bool flag = false;
+							for (auto j : skipColor)
+							{
+								if (cell[index].colorFlag == j)
+								{
+									flag = true;
+									break;
+								}
+							}
+							if (flag)
+							{
+								break;
+							}
+
+							if (cell[index].colorFlag == color)
+							{
+								if (isBigW || isBigB)
+								{
+									break;
+								}
+
+								result = false;
+								break;
+							}
+							else if (cell[index].colorFlag == bigColor)
+							{
+								if (isBigW)
+								{
+									break;
+								}
+
+								if (isBigB)
+								{
+									result = false;
+									break;
+								}
+
+								isBigB = !isBigB;
+							}
+							else if (cell[index].colorFlag == other)
+							{
+								if (isBigW)
+								{
+									break;
+								}
+							}
+							else if (cell[index].colorFlag == bigOther)
+							{
+								isBigW = !isBigW;
+							}
+						}
+					}
+
+					if (result == false)
+					{
+						break;
+					}
+				}
+
+				if (result == false)
+				{
+					break;
+				}
+			}
+		}
+		else if (cell[i].colorFlag == ColorFlag::BIG_E)
+		{
+			if (cell[i].GetBigCell() != BigCell::LT)
+			{
+				continue;
+			}
+
+			for (int j = 0; j < 4; j++)
+			{
+				index = i;
+				if (j % 2 == 1)
+				{
+					index += 1;
+				}
+				if (j / 2 == 1)
+				{
+					index += width;
+				}
+				x = index % width;
+				y = index / width;
+
+				for (int dir = 0; dir < 3; dir++)
+				{
+					int dirX = 0, dirY = 0;
+
+					switch (j)
+					{
+					case BigCell::LT:
+						if (dir % 2 == 0)
+						{
+							dirX = -1;
+						}
+						if (dir / 2 == 0)
+						{
+							dirY = -1;
+						}
+						break;
+					case BigCell::RT:
+						if (dir % 2 == 1)
+						{
+							dirX = +1;
+						}
+						if (dir / 2 == 0)
+						{
+							dirY = -1;
+						}
+						break;
+					case BigCell::LB:
+						if (dir % 2 == 0)
+						{
+							dirX = -1;
+						}
+						if (dir / 2 == 1)
+						{
+							dirY = +1;
+						}
+						break;
+					case BigCell::RB:
+						if (dir % 2 == 1)
+						{
+							dirX = +1;
+						}
+						if (dir / 2 == 1)
+						{
+							dirY = +1;
+						}
+						break;
+					default:
+						break;
+					}
+
+					if (x + dirX < 0 || y + dirY < 0 || x + dirX >= width || y + dirY >= height)
+					{
+						continue;
+					}
+
+					index = (y + dirY) * width + (x + dirX);
+					isBigW = false;
+					if (cell[index].colorFlag == bigOther)
+					{
+						isBigW = true;
+					}
+					else if (cell[index].colorFlag != other)
+					{
+						continue;
+					}
+
+					const int size = (width > height) ? width : height;
+					for (int s = 2; s < size; s++)
+					{
+						if (x + (dirX * s) < 0 || y + (dirY * s) < 0 || x + (dirX * s) >= width || y + (dirY * s) >= height)
+						{
+							break;
+						}
+
+						index += dirY * width + dirX;
+						if (index >= 0 && index < cell.size())
+						{
+							bool flag = false;
+							for (auto k : skipColor)
+							{
+								if (cell[index].colorFlag == k)
+								{
+									flag = true;
+									break;
+								}
+							}
+							if (flag)
+							{
+								break;
+							}
+
+							if (cell[index].colorFlag == color)
+							{
+								if (isBigW || isBigB)
+								{
+									break;
+								}
+
+								result = false;
+								break;
+							}
+							else if (cell[index].colorFlag == bigColor)
+							{
+								if (isBigW)
+								{
+									break;
+								}
+
+								if (isBigB)
+								{
+									result = false;
+									break;
+								}
+
+								isBigB = !isBigB;
+							}
+							else if (cell[index].colorFlag == other)
+							{
+								if (isBigW)
+								{
+									break;
+								}
+							}
+							else if (cell[index].colorFlag == bigOther)
+							{
+								isBigW = !isBigW;
+							}
+						}
+					}
+
+					if (result == false)
+					{
+						break;
+					}
+				}
+
+				if (result == false)
+				{
+					break;
+				}
+			}
+		}
+
+		if (result == false)
+		{
+			break;
+		}
+	}
+
+	return result;
+}
+
+int Othello::BigChange(int index, ColorFlag color)
 {
 	if (index < 0 || index >= cell.size() ||
-		cell[index].colorFlag != ColorFlag::BIG_E ||
+		cell[index].colorFlag <= ColorFlag::HOLE ||
 		cell[index].GetBigCell() == BigCell::NONE ||
 		color == ColorFlag::HOLE)
 	{
@@ -297,314 +878,6 @@ int Othello::BigPut(int index, ColorFlag color)
 	}
 
 	return 0;
-}
-
-int Othello::BigFlip(int index)
-{
-	if (index < 0 || index >= cell.size() ||
-		cell[index].colorFlag != ColorFlag::BIG_B && cell[index].colorFlag != ColorFlag::BIG_W ||
-		cell[index].GetBigCell() == BigCell::NONE)
-	{
-		return -1;
-	}
-
-	int bigIndex[4] = {};
-	switch (cell[index].GetBigCell())
-	{
-	case BigCell::LT:
-	{
-		bigIndex[0] = index;
-		bigIndex[1] = index + 1;
-		bigIndex[2] = index + width;
-		bigIndex[3] = index + width + 1;
-		break;
-	}
-	case BigCell::RT:
-	{
-		bigIndex[0] = index - 1;
-		bigIndex[1] = index;
-		bigIndex[2] = index + width - 1;
-		bigIndex[3] = index + width;
-		break;
-	}
-	case BigCell::LB:
-	{
-		bigIndex[0] = index - width;
-		bigIndex[1] = index - width + 1;
-		bigIndex[2] = index;
-		bigIndex[3] = index + 1;
-		break;
-	}
-	case BigCell::RB:
-	{
-		bigIndex[0] = index - width - 1;
-		bigIndex[1] = index - width;
-		bigIndex[2] = index - 1;
-		bigIndex[3] = index;
-		break;
-	}
-	default:
-		break;
-	}
-
-	for (int i = 0; i < 4; i++)
-	{
-		if (cell[bigIndex[i]].colorFlag == ColorFlag::BIG_B)
-		{
-			cell[bigIndex[i]].colorFlag = ColorFlag::BIG_W;
-		}
-		else if (cell[bigIndex[i]].colorFlag == ColorFlag::BIG_W)
-		{
-			cell[bigIndex[i]].colorFlag = ColorFlag::BIG_B;
-		}
-	}
-
-	return 0;
-}
-
-bool Othello::IsSkip(ColorFlag color)
-{
-	bool result = true;
-
-	for (int i = 0; i < width * height; i++)
-	{
-		if (result == false)
-		{
-			break;
-		}
-
-		if (cell[i].colorFlag != ColorFlag::EMPTY)
-		{
-			continue;
-		}
-
-		ColorFlag scaleColor = ColorFlag::EMPTY; //自分の色
-		ColorFlag other = ColorFlag::EMPTY; //相手の色
-		ColorFlag bigOther = ColorFlag::EMPTY; //相手の色
-		if (color == ColorFlag::BLACK)
-		{
-			scaleColor = ColorFlag::BIG_B;
-			other = ColorFlag::WHITE;
-			bigOther = ColorFlag::BIG_W;
-		}
-		else if (color == ColorFlag::WHITE)
-		{
-			scaleColor = ColorFlag::BIG_W;
-			other = ColorFlag::BLACK;
-			bigOther = ColorFlag::BIG_B;
-		}
-		else if (color == ColorFlag::BIG_B)
-		{
-			scaleColor = ColorFlag::BLACK;
-			other = ColorFlag::WHITE;
-			bigOther = ColorFlag::BIG_W;
-		}
-		else if (color == ColorFlag::BIG_W)
-		{
-			scaleColor = ColorFlag::WHITE;
-			other = ColorFlag::BLACK;
-			bigOther = ColorFlag::BIG_B;
-		}
-
-		int index = i;
-		int x = i % width;
-		int y = i / width;
-
-		for (int dirY = -1; dirY <= 1; dirY++)
-		{
-			for (int dirX = -1; dirX <= 1; dirX++)
-			{
-				if (dirY == 0 && dirX == 0)
-				{
-					continue;
-				}
-				if (x + dirX < 0 || y + dirY < 0 || x + dirX >= width || y + dirY >= height)
-				{
-					continue;
-				}
-				index = (y + dirY) * width + (x + dirX);
-				if (cell[index].colorFlag != other && cell[index].colorFlag != bigOther)
-				{
-					continue;
-				}
-
-				ColorFlag skipColor[] =
-				{
-					ColorFlag::EMPTY,
-					ColorFlag::HOLE
-				};
-
-				const int size = 8;
-				for (int s = 2; s < size; s++)
-				{
-					if (x + (dirX * s) < 0 || y + (dirY * s) < 0 || x + (dirX * s) >= width || y + (dirY * s) >= height)
-					{
-						break;
-					}
-
-					index += dirY * width + dirX;
-					if (index >= 0 && index < cell.size())
-					{
-						bool flag = false;
-						for (auto j : skipColor)
-						{
-							if (j == cell[index].colorFlag)
-							{
-								break;
-							}
-						}
-						if (flag)
-						{
-							break;
-						}
-
-						if (cell[index].colorFlag == color || cell[index].colorFlag == scaleColor)
-						{
-							result = false;
-							break;
-						}
-					}
-				}
-			}
-		}
-	}
-
-	return result;
-}
-
-int Othello::IsPinchedDirection(int index, Direction dir, ColorFlag startColor, bool isStart)
-{
-	int count = 0;
-	int x = index % width, y = index / width;
-	int dirX = 0, dirY = 0;
-	switch (dir)
-	{
-	case Othello::LEFT:
-		dirX = -1;
-		break;
-	case Othello::RIGHT:
-		dirX = +1;
-		break;
-	case Othello::UP:
-		dirY = -1;
-		break;
-	case Othello::DOWN:
-		dirY = +1;
-		break;
-	default:
-		if (count )
-		return count;
-	}
-
-	ColorFlag scaleColor = ColorFlag::EMPTY; //自分の色
-	ColorFlag other = ColorFlag::EMPTY; //相手の色
-	ColorFlag bigOther = ColorFlag::EMPTY; //相手の色
-	if (startColor == ColorFlag::BLACK)
-	{
-		scaleColor = ColorFlag::BIG_B;
-		other = ColorFlag::WHITE;
-		bigOther = ColorFlag::BIG_W;
-	}
-	else if (startColor == ColorFlag::WHITE)
-	{
-		scaleColor = ColorFlag::BIG_W;
-		other = ColorFlag::BLACK;
-		bigOther = ColorFlag::BIG_B;
-	}
-	else if (startColor == ColorFlag::BIG_B)
-	{
-		scaleColor = ColorFlag::BLACK;
-		other = ColorFlag::WHITE;
-		bigOther = ColorFlag::BIG_W;
-	}
-	else if (startColor == ColorFlag::BIG_W)
-	{
-		scaleColor = ColorFlag::WHITE;
-		other = ColorFlag::BLACK;
-		bigOther = ColorFlag::BIG_B;
-	}
-
-	if (x + dirX < 0 || y + dirY < 0 || x + dirX >= width || y + dirY >= height)
-	{
-		return 0;
-	}
-	index = (y + dirY) * width + (x + dirX);
-
-	if (cell[index].colorFlag != other && cell[index].colorFlag != bigOther)
-	{
-		if (isStart)
-		{
-			return 0;
-		}
-		else
-		{
-			return 1;
-		}
-	}
-
-	ColorFlag skipColor[] =
-	{
-		ColorFlag::EMPTY,
-		ColorFlag::HOLE
-	};
-
-	const int size = (width > height) ? width : height;
-	for (int s = 2; s < size; s++)
-	{
-		if (x + (dirX * s) < 0 || y + (dirY * s) < 0 || x + (dirX * s) >= width || y + (dirY * s) >= height)
-		{
-			if (isStart)
-			{
-				return 0;
-			}
-			else
-			{
-				return 1;
-			}
-			break;
-		}
-
-		index += dirY * width + dirX;
-		if (index >= 0 && index < cell.size())
-		{
-			bool flag = false;
-			for (auto j : skipColor)
-			{
-				if (j == cell[index].colorFlag)
-				{
-					break;
-				}
-			}
-			if (flag)
-			{
-				break;
-			}
-
-			//if (cell[index].colorFlag == startColor || cell[index].colorFlag == scaleColor)
-			//{
-			//	if (cell[index].colorFlag >= ColorFlag::EMPTY && cell[index].colorFlag < ColorFlag::HOLE)
-			//	{
-			//		cell[index].colorFlag = color;
-			//		index += dirY * width + dirX;
-			//		count += 1;
-			//	}
-			//	else if (cell[index].colorFlag == ColorFlag::BIG_B || cell[index].colorFlag == ColorFlag::BIG_W)
-			//	{
-			//		BigFlip(index);
-			//		index += (dirY * width + dirX) * 2;
-			//		count += 4;
-			//	}
-			//	else if (cell[index].colorFlag == ColorFlag::BIG_E)
-			//	{
-			//		BigPut(index, color);
-			//		index += (dirY * width + dirX) * 2;
-			//		count += 4;
-			//	}
-			//}
-		}
-	}
-
-	return count;
 }
 
 int Othello::Load(const std::string& filePath)
