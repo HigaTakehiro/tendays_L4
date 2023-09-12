@@ -48,7 +48,7 @@ int GameScene::Update(const KeyInput& input)
 	{
 		// リセット
 		othello.Reset();
-		colorFlag = ColorFlag::BLACK;
+		colorFlag = othello.GetStartColor();
 		isTie = false;
 	}
 	if (isFin)

@@ -171,6 +171,7 @@ int Othello::Put(int x, int y, ColorFlag color)
 				}
 
 				index = (y + dirY) * width + (x + dirX);
+				isBigB = false;
 				isBigW = false;
 				if (cell[index].colorFlag == bigOther)
 				{
@@ -370,6 +371,7 @@ int Othello::Put(int x, int y, ColorFlag color)
 				}
 
 				index = (y + dirY) * width + (x + dirX);
+				isBigB = false;
 				isBigW = false;
 				if (cell[index].colorFlag == bigOther)
 				{
