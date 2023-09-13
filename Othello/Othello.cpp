@@ -332,7 +332,7 @@ int Othello::Put(int x, int y, ColorFlag color)
 					}
 					break;
 				case BigCell::RT:
-					if (dir % 2 == 1)
+					if (dir > 0)
 					{
 						dirX = +1;
 					}
@@ -342,21 +342,21 @@ int Othello::Put(int x, int y, ColorFlag color)
 					}
 					break;
 				case BigCell::LB:
-					if (dir % 2 == 0)
+					if (dir / 2 == 0)
 					{
 						dirX = -1;
 					}
-					if (dir / 2 == 1)
+					if (dir > 0)
 					{
 						dirY = +1;
 					}
 					break;
 				case BigCell::RB:
-					if (dir % 2 == 1)
+					if (dir % 2 == 0)
 					{
 						dirX = +1;
 					}
-					if (dir / 2 == 1)
+					if (dir > 0)
 					{
 						dirY = +1;
 					}
