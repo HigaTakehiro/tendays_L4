@@ -47,6 +47,6 @@ public: //メンバ関数
 	int GetWidth() const { return width; }
 	int GetHeight() const { return height; }
 	size_t GetSize() const { return cell.size(); }
-	ColorFlag GetCell(int index) const;
+	Cell GetCell(int index) const { return cell[index]; };
 	ColorFlag GetStartColor() const;
 };

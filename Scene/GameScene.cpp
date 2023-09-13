@@ -29,11 +29,11 @@ void GameScene::Init()
 
 	for (int i = 0; i < othello.GetSize(); i++)
 	{
-		if (othello.GetCell(i) == ColorFlag::BLACK || othello.GetCell(i) == ColorFlag::BIG_B)
+		if (othello.GetCell(i).colorFlag == ColorFlag::BLACK || othello.GetCell(i).colorFlag == ColorFlag::BIG_B)
 		{
 			bCount++;
 		}
-		else if (othello.GetCell(i) == ColorFlag::WHITE || othello.GetCell(i) == ColorFlag::BIG_W)
+		else if (othello.GetCell(i).colorFlag == ColorFlag::WHITE || othello.GetCell(i).colorFlag == ColorFlag::BIG_W)
 		{
 			wCount++;
 		}
@@ -70,7 +70,7 @@ int GameScene::Update(const KeyInput& input)
 		if (input.IsKeyTrigger(KEY_INPUT_LEFT))
 		{
 			isMove = (x - 1) >= 0;
-			isMove &= othello.GetCell(static_cast<size_t>(y * othello.GetWidth() + x - 1)) != ColorFlag::HOLE;
+			isMove &= othello.GetCell(static_cast<size_t>(y * othello.GetWidth() + x - 1)).colorFlag != ColorFlag::HOLE;
 
 			if (isMove)
 			{
@@ -80,7 +80,7 @@ int GameScene::Update(const KeyInput& input)
 		if (input.IsKeyTrigger(KEY_INPUT_RIGHT))
 		{
 			isMove = (x + 1) < othello.GetWidth();
-			isMove &= othello.GetCell(static_cast<size_t>(y * othello.GetWidth() + x + 1)) != ColorFlag::HOLE;
+			isMove &= othello.GetCell(static_cast<size_t>(y * othello.GetWidth() + x + 1)).colorFlag != ColorFlag::HOLE;
 
 			if (isMove)
 			{
@@ -90,7 +90,7 @@ int GameScene::Update(const KeyInput& input)
 		if (input.IsKeyTrigger(KEY_INPUT_UP))
 		{
 			isMove = (y - 1) >= 0;
-			isMove &= othello.GetCell(static_cast<size_t>((y - 1) * othello.GetWidth() + x)) != ColorFlag::HOLE;
+			isMove &= othello.GetCell(static_cast<size_t>((y - 1) * othello.GetWidth() + x)).colorFlag != ColorFlag::HOLE;
 
 			if (isMove)
 			{
@@ -100,7 +100,7 @@ int GameScene::Update(const KeyInput& input)
 		if (input.IsKeyTrigger(KEY_INPUT_DOWN))
 		{
 			isMove = (y + 1) < othello.GetHeight();
-			isMove &= othello.GetCell(static_cast<size_t>((y + 1) * othello.GetWidth() + x)) != ColorFlag::HOLE;
+			isMove &= othello.GetCell(static_cast<size_t>((y + 1) * othello.GetWidth() + x)).colorFlag != ColorFlag::HOLE;
 
 			if (isMove)
 			{
@@ -151,11 +151,13 @@ int GameScene::Update(const KeyInput& input)
 
 				for (int i = 0; i < othello.GetSize(); i++)
 				{
-					if (othello.GetCell(i) == ColorFlag::BLACK || othello.GetCell(i) == ColorFlag::BIG_B)
+					if (othello.GetCell(i).colorFlag == ColorFlag::BLACK ||
+						(othello.GetCell(i).colorFlag == ColorFlag::BIG_B && othello.GetCell(i).GetBigCell() == BigCell::LT))
 					{
 						bCount++;
 					}
-					else if (othello.GetCell(i) == ColorFlag::WHITE || othello.GetCell(i) == ColorFlag::BIG_W)
+					else if (othello.GetCell(i).colorFlag == ColorFlag::WHITE ||
+							 (othello.GetCell(i).GetBigCell() == BigCell::LT && othello.GetCell(i).colorFlag == ColorFlag::BIG_W))
 					{
 						wCount++;
 					}

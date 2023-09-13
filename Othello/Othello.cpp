@@ -968,16 +968,6 @@ int Othello::Load(const std::string& filePath)
 	return 0;
 }
 
-ColorFlag Othello::GetCell(int index) const
-{
-	if (index < 0 || index >= cell.size())
-	{
-		return ColorFlag::HOLE;
-	}
-
-	return cell[index].colorFlag;
-}
-
 ColorFlag Othello::GetStartColor() const
 {
 	if (startColor)
